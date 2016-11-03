@@ -142,10 +142,43 @@ server_oic: GET request
 server_oic: Light state 0
 Outgoing message to [fe80:0000:0000:0000:a4ab:89ff:febd:1f80]:56789
 ```
+TAPs interfaces can be easily deleted. Go to `/dist/tools/tapsetup` and type
+```
+$ sudo ./tapsetup -d
+```
 
 ### Server and Client (Periodic PUT) - SAMR21-XPRO target
+Now, we reproduce the previous scenario using 2 [SAMR21-XPRO][4] nodes.
+Connect your nodes, go to `/examples/iotivity-examples/server` and check the availability by typing:
+```
+$ make list-ttys
+```
+The output will be similar to
+```
+/sys/bus/usb/devices/2-1.3: Atmel Corp. EDBG CMSIS-DAP serial: 'ATML2127031800009004', tty(s): ttyACM0
+/sys/bus/usb/devices/2-1.4: Atmel Corp. EDBG CMSIS-DAP serial: 'ATML2127031800008718', tty(s): ttyACM1
+```
+We will use Serial Numbers in order to identify the designed node during the compilation phase.
+Now, we compile the server
+```
+$ make flash BOARD=samr21-xpro SERIAL=server_node_serial
+```
+then we open the serial connection
+```
+$ make term BOARD=samr21-xpro SERIAL=server_node_serial
+```
+The server starts and it is waiting incoming requests.
+Now, we open a new terminal window and go to `/examples/iotivity-examples/client` and type
+```
+$ make flash BOARD=samr21-xpro SERIAL=client_node_serial
+$ make term BOARD=samr21-xpro SERIAL=client_node_serial
+```
+Client starts the discovery phase. Once it find a resource, it switches on its LED  and it starts with periodic PUT requests. The server LED will blinkClient starts the discovery phase. Once it find a resource, it switches on its LED and it starts with periodic PUT requests. The server LED blinks periodically.  periodically.
+Client and Server terminal outputs are the same in case of native target.
+
 ### Server and Client_Switch  - SAMR21-XPRO target
 
 [1]: https://github.com/iotivity/iotivity-constrained/
 [2]: http://cbor.io/
 [3]: https://openconnectivity.org/resources/specifications
+[4]: http://www.atmel.com/tools/ATSAMR21-XPRO.aspx

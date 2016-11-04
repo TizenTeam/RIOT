@@ -148,7 +148,7 @@ void button_callback(void){
 static oc_event_callback_retval_t
 operate(void *data)
 {
-    PRINT("client_oic: Operate...\n");
+    PRINT("client_oic: Ready...\n");
     set_led_state(true);
     oc_do_observe(light_1, &light_server, NULL, &observe_light, LOW_QOS, NULL);
 #ifdef BUTTON_GPIO

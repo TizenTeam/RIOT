@@ -155,7 +155,7 @@ do_discovery(void *data)
 {
     if (got_discovery_response) {
         PRINT("client_oic: Discovery done\n");   
-        PRINT("client_oic: Operate...\n");
+        PRINT("client_oic: Ready...\n");
         oc_do_observe(light_1, &light_server, NULL, &observe_light, LOW_QOS, NULL);
         oc_set_delayed_callback(NULL, &periodic_put, 1);
         oc_set_delayed_callback(NULL, &stop_observe, 100);   

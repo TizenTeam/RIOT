@@ -18,6 +18,7 @@ All examples have been tested on Native and SAMR21-XPRO.
      - [Preliminary Step](#l2n_pre)
      - [Start the Border Router](#l2n_br)
      - [Start the Server](#l2n_srv)
+     - [Server output](#l2n_out)
      - [Testing](#l2n_tst)
 
 ##<a name="server_ex"></a>Server Example
@@ -277,6 +278,28 @@ The server starts the initialization phase, then it is ready for incoming reques
 ```
 $ ping6 <IPv6 server>
 ```
+
+###<a name="l2n_out"></a>Server Output
+Managing a GET request the output is like
+```
+2016-11-04 14:39:32,115 - INFO # ipadapter: got server request
+2016-11-04 14:39:32,121 - INFO # Incoming message from [2001:0db8:0000:0000:0000:0000:0000:0001]:56214
+2016-11-04 14:39:32,125 - INFO # ipadapter: waiting for server requests...
+2016-11-04 14:39:32,128 - INFO # server_oic: GET request
+2016-11-04 14:39:32,130 - INFO # server_oic: Light state 0
+2016-11-04 14:39:32,145 - INFO # Outgoing message to [2001:0db8:0000:0000:0000:0000:0000:0001]:56214
+```
+Managing a PUT request the output is like
+```
+2016-11-04 14:39:35,119 - INFO # ipadapter: got server request
+2016-11-04 14:39:35,125 - INFO # Incoming message from [2001:0db8:0000:0000:0000:0000:0000:0001]:56214
+2016-11-04 14:39:35,128 - INFO # ipadapter: waiting for server requests...
+2016-11-04 14:39:35,134 - INFO # server_oic: PUT request
+2016-11-04 14:39:35,136 - INFO # server_oic: key: state value: 1
+2016-11-04 14:39:35,138 - INFO # server_oic: LED0 is ON
+2016-11-04 14:39:35,141 - INFO # Outgoing message to [2001:0db8:0000:0000:0000:0000:0000:0001]:56214
+```
+
 ###<a name="l2n_tst"></a>Testing
 There are many different ways to test this scenario.
 

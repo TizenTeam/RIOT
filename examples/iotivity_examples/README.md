@@ -15,6 +15,10 @@ All examples have been tested on Native and SAMR21-XPRO.
      -  [Server and Client (Periodic PUT) - SAMR21-XPRO target](#sc_pput_samr21)
      -  [Server and Client_Switch  - SAMR21-XPRO target](#sc_sw_samr21)
    - [Linux-to-Nodes Communications](#l2n_comm)
+     - [Preliminary Step](#l2n_pre)
+     - [Start the Border Router](#l2n_br)
+     - [Start the Server](#l2n_srv)
+     - [Testing](#l2n_tst)
 
 ##<a name="server_ex"></a>Server Example
 This example implements an IoTivity Server that contains 4 resources. 
@@ -216,11 +220,75 @@ $ make term BOARD=samr21-xpro SERIAL=client_node_serial
 Client performs the discovery phase. Once it is completed, client registers as an Observer of the resource, then it switches on its LED. 
 Client is now ready to send a PUT request when the User Button is pressed. The server LED will change the status when the button is pressed. Terminal outputs are similar to outputs in previous examples.
 ##<a name="l2n_comm"></a>Linux-to-Nodes communications
+In this scenario, we will deploy an IoTivity server on a RIOT node and the IoTivity client will run on a Linux machine. This architecture requires the "enhanced" version of the Border Router [BR_FW](br_fw_ex). It requires two SAMR21-XPRO nodes or similar.
 
+###Known Issue
+RIOT is affected by this [Bug][5]. If you want try this scenario, you have to patch (temporary) RIOT with this ["solution"][6].
 
+###<a name="l2n_pre"></a>Preliminary shttps://github.com/RIOT-OS/RIOT/pull/5596tep
+Connect your nodes, go to `/examples/iotivity-examples/server` and check the list of USB-connected nodes by typing:
+```
+$ make list-ttys
+```
+The output will be similar to
+```
+/sys/bus/usb/devices/2-1.3: Atmel Corp. EDBG CMSIS-DAP serial: 'ATML2127031800001234', tty(s): ttyACM0
+/sys/bus/usb/devices/2-1.4: Atmel Corp. EDBG CMSIS-DAP serial: 'ATML2127031800004321', tty(s): ttyACM1
+```
+We will use Serial Numbers in order to identify the designed node during the compilation phase.
+
+###<a name="l2n_br"></a>Start the Border Router
+Step 1) Open a terminal window in `/example/iotivity-examples/br_fw/` and type
+```
+$ make flash BOARD=samr21-xpro SERIAL=br_node_serial 
+```
+Step 2) Once the flashing is finished, we have to open a network interface. Type
+```
+$  PORT=/dev/ttyACM0 make term
+```
+Step 3) We have to complete the routing strategy on the BR, so in the RIOT shell type
+```
+> ifconfig 7 add 2001:db8::2
+> fibroute add :: via 2001:db8::1 dev 7
+```
+Now the BR is ready. The network is configured as follow:
+- Serial Port: **/dev/ttyACM0**
+- Interface: **tap0**
+- Address Prefix: **2001:db8::\64**
+- Routing on tap0 of multicast packet with destination **ff03::158**
+
+It is possible to configure the network with different parameters by invoking directly the initialization script instead of executing the Step 2:
+```
+$ make host-tools
+$ sudo ./start_network_mcast.sh <serial-port> <tap-device> <IPv6-prefix> <IPv6-mcast>
+```
+then run the Step 3 with the proper changes.
+
+###<a name="l2n_srv"></a>Start the Server
+Open a terminal window, go to `/examples/iotivity-examples/server` and type
+```
+$ make flash BOARD=samr21-xpro SERIAL=server_node_serial
+```
+then we open the serial connection
+```
+$ make term BOARD=samr21-xpro SERIAL=server_node_serial
+```
+The server starts the initialization phase, then it is ready for incoming requests. We can check the reachability of the server by typing in another terminal window
+```
+$ ping6 <IPv6 server>
+```
+###<a name="l2n_tst"></a>Testing
+There are many different ways to test this scenario.
+
+ - Tools: you can use [Copper(Cu)][7] or [coap-cli][8] to perform get request. The second one supports CBOR.
+ - Iotivity Client: you can write an iotivity client that runs on Linux. An example of a client will be available soon.
 
 [1]: https://github.com/iotivity/iotivity-constrained/
 [2]: http://cbor.io/
 [3]: https://openconnectivity.org/resources/specifications
 [4]: http://www.atmel.com/tools/ATSAMR21-XPRO.aspx
+[5]: https://github.com/RIOT-OS/RIOT/pull/5596
+[6]: https://github.com/RIOT-OS/RIOT/pull/5926
+[7]: http://people.inf.ethz.ch/mkovatsc/copper.php
+[8]: https://github.com/mcollina/coap-cli
 
